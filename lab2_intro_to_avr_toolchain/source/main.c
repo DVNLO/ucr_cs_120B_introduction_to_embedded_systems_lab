@@ -19,10 +19,15 @@ int main(void) {
     DDRB = 0xFF;
     PORTB = 0x00;
     /* Insert your solution below */
-    unsigned char temp_input = 0x00;
+    unsigned char tmpA = 0x00;
+    unsigned char tmpB = 0x00;
     while (1) {
-	temp_input = PINA;
-	PORTB = temp_input;
+    	tmpA = PINA & 0x01;
+	if(tmpA == 0x01)
+		tmpB = (tmpB & 0xFC) | 0x01;
+	else
+		tmpB = (tmpB & 0xFC) | 0x02;
+	PORTB = tmpB;
     }
     return 1;
 }
