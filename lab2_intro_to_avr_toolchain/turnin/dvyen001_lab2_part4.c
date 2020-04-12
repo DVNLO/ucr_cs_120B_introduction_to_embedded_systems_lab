@@ -14,6 +14,7 @@
 #include <avr/io.h>
 #ifdef _SIMULATE_
 #include "simAVRHeader.h"
+#define UCHAR_MAX 255
 #endif
 
 unsigned char get_bit(unsigned char const i, 
