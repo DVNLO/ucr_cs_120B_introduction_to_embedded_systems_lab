@@ -14,9 +14,9 @@
 #include <avr/io.h>
 #ifdef _SIMULATE_
 #include "simAVRHeader.h"
+#define UCHAR_MAX 255
 #endif
 
-inline
 unsigned char get_bit(unsigned char const i, 
                       unsigned char const src)
 // Returns the i-th bit value found in src.
@@ -27,7 +27,6 @@ unsigned char get_bit(unsigned char const i,
     return ret;
 }
 
-inline
 unsigned char set_bit(unsigned char const i, 
                       unsigned char const src)
 // Sets the i-th bit in src, and returns the result, ret.
@@ -37,7 +36,6 @@ unsigned char set_bit(unsigned char const i,
     return ret;
 }
 
-inline
 unsigned char clear_bit(unsigned char const i,
                         unsigned char const src)
 // Clears the i-th bit in src and returns the result, ret.
@@ -47,7 +45,6 @@ unsigned char clear_bit(unsigned char const i,
     return ret;
 }
 
-inline
 unsigned char toggle_bit(unsigned char const i,
                          unsigned char const src)
 // Toggles the i-th bit in src and returns the result, ret.
@@ -87,14 +84,12 @@ void initialize_port(unsigned char const port,
     }
 }
 
-inline
 unsigned char min(unsigned char const lhs, 
                   unsigned char const rhs)
 {
     return lhs < rhs ? lhs : rhs;
 }
 
-inline
 unsigned char max(unsigned char const lhs,
                   unsigned char const rhs)
 {
@@ -119,8 +114,11 @@ int main(void)
         cart_weight = (unsigned short)(PINA);
         cart_weight += (unsigned short)(PINB);
         cart_weight += (unsigned short)(PINC);
-        PORT_D_TMP = (unsigned char)(cart_weight >> 2);
-        if(cart_weight > 140)
+		if(cart_weight > UCHAR_MAX)
+			PORT_D_TMP = UCHAR_MAX;
+		else
+			PORT_D_TMP = (unsigned char)(cart_weight);
+        if(PORT_D_TMP > 140)
             PORT_D_TMP = set_bit(0, PORT_D_TMP);
         else
             PORT_D_TMP = clear_bit(0, PORT_D_TMP);
