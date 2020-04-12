@@ -13,7 +13,6 @@
 #include "simAVRHeader.h"
 #endif
 
-inline
 unsigned char get_bit(unsigned char const i, 
                       unsigned char const src)
 // returns the i-th bit value found in src.
@@ -24,7 +23,6 @@ unsigned char get_bit(unsigned char const i,
     return ret;
 }
 
-inline
 unsigned char set_bit(unsigned char const i, 
                       unsigned char const src)
 // sets the i-th bit in src.
@@ -34,7 +32,6 @@ unsigned char set_bit(unsigned char const i,
     return ret;
 }
 
-inline
 unsigned char clear_bit(unsigned char const i,
                         unsigned char const src)
 // clears the i-th bit in src.
@@ -44,7 +41,6 @@ unsigned char clear_bit(unsigned char const i,
     return ret;
 }
 
-inline
 unsigned char toggle_bit(unsigned char const i,
                          unsigned char const src)
 // toggles the i-th bit in src.
