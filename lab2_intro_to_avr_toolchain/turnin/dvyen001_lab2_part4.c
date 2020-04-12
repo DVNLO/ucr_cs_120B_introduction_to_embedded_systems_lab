@@ -113,8 +113,11 @@ int main(void)
         cart_weight = (unsigned short)(PINA);
         cart_weight += (unsigned short)(PINB);
         cart_weight += (unsigned short)(PINC);
-        PORT_D_TMP = (unsigned char)(cart_weight >> 2);
-        if(cart_weight > 140)
+		if(cart_weight > UCHAR_MAX)
+			PORT_D_TMP = UCHAR_MAX;
+		else
+			PORT_D_TMP = (unsigned char)(cart_weight);
+        if(PORT_D_TMP > 140)
             PORT_D_TMP = set_bit(0, PORT_D_TMP);
         else
             PORT_D_TMP = clear_bit(0, PORT_D_TMP);
