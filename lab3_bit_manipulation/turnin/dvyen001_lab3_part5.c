@@ -1,7 +1,7 @@
 /*	Author: Daniel Vyenielo
  *      Partner(s) Name: 
  *	Lab Section: 21
- *	Assignment: Lab 3  Exercise 2
+ *	Assignment: Lab 3  Exercise 5 
  *	Exercise Description:
  *  output : complicated, look at the code. 
  *  
