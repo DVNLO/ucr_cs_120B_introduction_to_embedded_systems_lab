@@ -1,1 +1,4 @@
+*.o
+*.elf
+*.vcd
 tests_out.txt
