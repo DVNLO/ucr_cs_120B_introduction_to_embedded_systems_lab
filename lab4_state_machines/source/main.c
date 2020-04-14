@@ -1,7 +1,7 @@
 /*	Author: Daniel Vyenielo
  *  Partner(s) Name: 
  *	Lab Section: 21
- *	Assignment: Lab 4  Exercise 3
+ *	Assignment: Lab 4  Exercise 1
  *	Exercise Description:
  *  Make a sr - latch state machine
  *
@@ -17,58 +17,70 @@
 #include "bit_manipulation.h"
 #include "utilities.h"
 
-enum { INIT, UNLOCK, LOCK, INTER } state;
-unsigned char X;
-unsigned char Y;
-unsigned char LB;
-unsigned char L;
+enum { INIT, PB0_ON, TO_PB1, PB1_ON, TO_PB0 } state;
+unsigned char A0;
+unsigned char const B0 = 0;
+unsigned char const B1 = 1;
 
 void tick()
 {
-    X = get_bit(0, PINA);
-    Y = get_bit(1, PINA);
-    LB = get_bit(2, PINA);
-    L = get_bit(7, PINA);
+    A0 = get_bit(0, PINA);
     switch(state)
     {
         case INIT:
-            state = UNLOCK;
+            PORTB = set_bit(B0, 0x00);
+            state = PB0_ON;
             break;
-        case UNLOCK:
-            if(!X && !Y && !LB && L)
+        case PB0_ON:
+            if(A0)
             {
-                PORTB = 0x01;
-                state = LOCK;
+                state = TO_PB1;
             }
             break;
-        case LOCK:
-            if(!X && !Y && LB && !L)
-                state = INTER;
+        case TO_PB1:
+            if(!A0)
+            {
+                state = PB1_ON;
+            }
             break;
-        case INTER:
-            if(!X && Y && !LB && !L)
+        case PB1_ON:
+            if(A0)
             {
-                PORTB = 0x00;
-                state = UNLOCK;
+                state = TO_PB0;
             }
-            else if(!X && !Y && LB && !L)
+            break;
+        case TO_PB0:
+            if(!A0)
             {
-                state = INTER;
+                state = PB0;
             }
-            else
-                state = LOCK;
             break;
         default:
             break;
     }
-    PORTC = (unsigned char)(state);
+    switch(state)
+    {
+        case INIT:
+            break;
+        case PB0_ON:
+            break;
+        case TO_PB1:
+            PORTB = set_bit(B1, 0x00);
+            break;
+        case PB1_ON:
+            break;
+        case TO_PB0:
+            PORTB = set_bit(B0, 0x00);
+            break;
+        default:
+            break;
+    }
 }
 
 int main(void) 
 {
     initialize_port('A', DDR_INPUT, INIT_VAL_INPUT);
     initialize_port('B', DDR_OUTPUT, INIT_VAL_OUTPUT);
-    initialize_port('C', DDR_OUTPUT, INIT_VAL_OUTPUT);
     state = INIT;
     while (1) 
     {

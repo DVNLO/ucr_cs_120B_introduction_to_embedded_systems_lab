@@ -26,31 +26,30 @@
 echo ======================================================\n
 echo Running all tests..."\n\n
 
-test "PINA: 0x00 => PINB: 0x00"
+test "PINA: 0x00 => PINB: 0x01"
 setPINA 0x00
-continue 2
-expectPORTB 0x00
-checkResult
-
-test "PINA: 0x00, 0x80 => PINB: 0x01"
-setPINA 0x00
-continue 2
-setPINA 0x80
 continue 2
 expectPORTB 0x01
 checkResult
 
-test "PINA: 0x00, 0x80, 0x04, 0x02 => PINB: 0x00"
-set state = UNLOCK
+test "PINA: 0x00, 0x01, 0x00 => PINB: 0x02"
 setPINA 0x00
 continue 2
-setPINA 0x80
+setPINA 0x01
 continue 2
-setPINA 0x04
+setPINA 0x00
 continue 2
-setPINA 0x02
-continue 5
-expectPORTB 0x00
+expectPORTB 0x02
+checkResult
+
+test "PINA: 0x00, 0x01, 0x00 => PINB: 0x01"
+setPINA 0x00
+continue 2
+setPINA 0x01
+continue 2
+setPINA 0x00
+continue 2
+expectPORTB 0x01
 checkResult
 
 # Report on how many tests passed/tests ran
