@@ -17,41 +17,61 @@
 #include "bit_manipulation.h"
 #include "utilities.h"
 
-enum { INIT, Q, TRANSITION_Q, Q_NOT, TRANSITION_Q_NOT } state;
+enum { INIT, PB0_ON, TO_PB1, PB1_ON, TO_PB0 } state;
+unsigned char A0;
+unsigned char const B0 = 0;
+unsigned char const B1 = 1;
 
 void tick()
 {
+    A0 = get_bit(0, PINA);
     switch(state)
     {
         case INIT:
-            PORTB = set_bit(0, INIT_VAL_OUTPUT);
-            state = Q;
+            PORTB = set_bit(B0, 0x00);
+            state = PB0_ON;
             break;
-        case Q:
-            if(get_bit(0, PINA))
+        case PB0_ON:
+            if(A0)
             {
-                state = TRANSITION_Q_NOT;
+                state = TO_PB1;
             }
             break;
-        case TRANSITION_Q_NOT:
-            if(!get_bit(0, PINA))
+        case TO_PB1:
+            if(!A0)
             {
-                PORTB = set_bit(1, 0x00);
-                state = Q_NOT;
+                state = PB1_ON;
             }
             break;
-        case Q_NOT:
-            if(get_bit(0, PINA))
+        case PB1_ON:
+            if(A0)
             {
-                state = TRANSITION_Q;
+                state = TO_PB0;
             }
             break;
-        case TRANSITION_Q:
-            if(!get_bit(0, PINA))
+        case TO_PB0:
+            if(!A0)
             {
-                PORTB = set_bit(0, 0x00);
-                state = Q;
+                state = PB0;
             }
+            break;
+        default:
+            break;
+    }
+    switch(state)
+    {
+        case INIT:
+            break;
+        case PB0_ON:
+            break;
+        case TO_PB1:
+            PORTB = set_bit(B1, 0x00);
+            break;
+        case PB1_ON:
+            break;
+        case TO_PB0:
+            PORTB = set_bit(B0, 0x00);
+            break;
         default:
             break;
     }
