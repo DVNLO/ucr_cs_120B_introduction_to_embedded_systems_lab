@@ -17,10 +17,10 @@
 #include "bit_manipulation.h"
 #include "utilities.h"
 
-enum { INIT, WAIT, DECREMENT, INCREMENT, RESET } state;
+enum { INIT, WAIT, INCREMENT_WAIT, DECREMENT_WAIT, RESET } state;
 unsigned char A0;
 unsigned char A1;
-unsigned char count_val;
+unsigned char PORTC_VAL;
 
 void tick()
 {
@@ -29,47 +29,86 @@ void tick()
     switch(state)
     {
         case INIT:
-            PORTC = 7;
+            PORTC_VAL = 7;
             state = WAIT;
             break;
         case WAIT:
+            if(!A0 && !A1)
+            {
+                state = WAIT;
+            }
+            else if(!A0 && A1)
+            {
+                if(PORTC_VAL)
+                    --PORTC_VAL;
+                state = DECREMENT_WAIT;
+            }
+            else if(A0 && !A1)
+            {
+                if(PORTC_VAL < 9)
+                    ++PORTC_VAL;
+                state = INCREMENT_WAIT;
+            }
+            else if(A0 && A1)
+            {
+                PORTC_VAL = 0;
+                state = RESET;
+            }
+            break;
+        case INCREMENT_WAIT:
+            if(!A0 && !A1)
+            {
+                state = WAIT;
+            }
+            else if(!A0 && A1)
+            {
+                if(PORTC_VAL)
+                    --PORTC_VAL;
+                state = DECREMENT_WAIT;
+            }
+            else if(A0 && !A1)
+            {
+                state = INCREMENT_WAIT;
+            }
+            else if(A0 && A1)
+            {
+                PORTC_VAL = 0;
+                state = RESET;
+            }
+            break; 
+        case DECREMENT_WAIT:
+           if(!A0 && !A1)
+            {
+                state = WAIT;
+            }
+            else if(!A0 && A1)
+            {
+                state = DECREMENT_WAIT;
+            }
+            else if(A0 && !A1)
+            {
+                if(PORTC_VAL < 9)
+                    ++PORTC_VAL;
+                state = INCREMENT_WAIT;
+            }
+            else if(A0 && A1)
+            {
+                PORTC_VAL = 0;
+                state = RESET;
+            }
+            break; 
+        case RESET:
             if(A0 && A1)
             {
                 state = RESET;
             }
-            else if(!A0 && A1)
+            else
             {
-                state = DECREMENT;
+                state = WAIT;
             }
-            else if(A0 && !A1)
-            {
-                state = INCREMENT;
-            }
-            state = WAIT;
-            break;
-        case RESET:
-            count_val = 0;
-            PORTC = count_val;
-            state = WAIT;
-        case DECREMENT:
-            if(count_val)
-            {
-                --count_val;
-                PORTC = count_val;
-            }
-            state = WAIT;
-            break;
-        case INCREMENT:
-            if(count_val < 9)
-            {
-                ++count_val;
-                PORTC = count_val;
-            }
-            state = WAIT;
-            break;
-        default:
             break;
     }
+    PORTC = PORTC_VAL;
 }
 
 int main(void) 
