@@ -17,7 +17,7 @@
 #include "bit_manipulation.h"
 #include "utilities.h"
 
-enum { INIT, UNLOCK, LOCK, INTER } state;
+enum { INIT, LOCK, TO_UNLOCK, UNLOCK } state;
 unsigned char X;
 unsigned char Y;
 unsigned char LB;
@@ -32,31 +32,39 @@ void tick()
     switch(state)
     {
         case INIT:
-            state = UNLOCK;
-            break;
-        case UNLOCK:
-            if(!X && !Y && !LB && L)
-            {
-                PORTB = 0x01;
-                state = LOCK;
-            }
+            state = LOCK;
             break;
         case LOCK:
             if(!X && !Y && LB && !L)
-                state = INTER;
+                state = TO_UNLOCK;
             break;
-        case INTER:
-            if(!X && Y && !LB && !L)
-            {
-                PORTB = 0x00;
+        case TO_UNLOCK:
+            if((!X && !Y && LB && !L ) 
+                || (!X && !Y && !LB && !L))
+                state = TO_UNLOCK;
+            else if(!X && Y && !LB && !L)
                 state = UNLOCK;
-            }
-            else if(!X && !Y && LB && !L)
-            {
-                state = INTER;
-            }
             else
                 state = LOCK;
+            break;
+        case UNLOCK:
+            if(L)
+                state = LOCK;
+            break;
+         default:
+            break;
+    }
+    switch(state)
+    {
+        case INIT:
+            break;
+        case LOCK:
+            PORTB = 0x00;
+            break;
+        case TO_UNLOCK:
+            break;
+        case UNLOCK:
+            PORTB = 0x01;
             break;
         default:
             break;
