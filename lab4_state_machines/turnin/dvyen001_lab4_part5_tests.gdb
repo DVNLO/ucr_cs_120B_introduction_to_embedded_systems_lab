@@ -38,22 +38,23 @@ continue 2
 expectPORTB 0x00
 checkResult
 
-test "PINA: 0x80 => PORTB: 0x00"
-setPINA 0x80
-continue 2
-expectPORTB 0x00
-checkResult
-
-test "PINA: 0x04, 0x00, 0x01 => PORTB: 0x00"
+test "PINA: 0x04, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01 => PORTB: 0x01"
 setPINA 0x04
 continue 2
 setPINA 0x00
 continue 2
 setPINA 0x01
 continue 2
-expectPORTB 0x00
+setPINA 0x00
+continue 2
+setPINA 0x02
+continue 2
+setPINA 0x00
+continue 2
+setPINA 0x01
+continue 2
+expectPORTB 0x01
 checkResult
-
 
 # Report on how many tests passed/tests ran
 set $passed=$tests-$failed
