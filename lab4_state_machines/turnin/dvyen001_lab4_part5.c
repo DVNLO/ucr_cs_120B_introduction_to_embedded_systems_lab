@@ -1,9 +1,8 @@
-/*	Author: Daniel Vyenielo
+/*	Author: lab
  *  Partner(s) Name: 
- *	Lab Section: 21
- *	Assignment: Lab 4  Exercise 3
- *	Exercise Description:
- *  Make a sr - latch state machine
+ *	Lab Section:
+ *	Assignment: Lab #  Exercise #
+ *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
  *	code, is my own original work.
@@ -15,26 +14,16 @@
 
 #include "avr_configuration.h"
 #include "bit_manipulation.h"
-#include "utilities.h"
-
-enum { START, INIT, LOCK, UNLOCK } state;
-unsigned char X;
-unsigned char Y;
-unsigned char LB;
-unsigned char L;
+enum { INIT, LOCK, UNLOCK } state;
 unsigned char sequence[] = { 0x04, 0x01, 0x02, 0x01 };
 unsigned char i;
+unsigned char A;
 
 void tick()
 {
-    X = get_bit(0, PINA);
-    Y = get_bit(1, PINA);
-    LB = get_bit(2, PINA);
-    L = get_bit(7, PINA);
+    A = PINA;
     switch(state)
     {
-        case START:
-            state = INIT;
         case INIT:
             i = 0;
             state = LOCK;
@@ -47,13 +36,13 @@ void tick()
             }
             break;
         case UNLOCK:
-            if(L || i > 3)
+            if(get_bit(7, PINA) || i > 3)
             {
                 i = 0;
                 state = LOCK;
             }
             break;
-         default:
+        default:
             break;
     }
     switch(state)
@@ -61,34 +50,35 @@ void tick()
         case INIT:
             break;
         case LOCK:
-            if(PINA == sequence[i])
-                ++i;
-            else if(!PINA)
-                ;
-            else
-                i = 0;
+            if(A)
+            {
+                if(A == sequence[i])
+                    ++i;
+            }
             PORTB = 0x00;
             break;
         case UNLOCK:
-            if(PINA == sequence[i])
-                ++i;
-            else if(!PINA)
-                ;
-            else
-                i = 0;
+            if(A)
+            {
+                if(A == sequence[i])
+                    ++i;
+            }
             PORTB = 0x01;
             break;
         default:
             break;
     }
-    PORTC = (unsigned char)(state);
+    PORTC = i;
 }
 
-int main(void) 
-{
+int main(void) {
+    /* Insert DDR and PORT initializations */
+    //DDRA = 0x00; PORTA = 0xFF;
     initialize_port('A', DDR_INPUT, INIT_VAL_INPUT);
     initialize_port('B', DDR_OUTPUT, INIT_VAL_OUTPUT);
     initialize_port('C', DDR_OUTPUT, INIT_VAL_OUTPUT);
+    //DDRB = 0xFF; PORTB = 0x00;
+    /* Insert your solution below */
     state = INIT;
     while (1) 
     {

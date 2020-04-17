@@ -1,4 +1,4 @@
-# Test file for "lab4_state_machines"
+# Test file for "test"
 
 
 # commands.gdb provides the following functions for ease:
@@ -32,28 +32,44 @@ continue 2
 expectPORTB 0x00
 checkResult
 
-test "PINA: 0x03 => PORTB: 0"
+test "PINA: 0x03 => PINB: 0x00"
 setPINA 0x03
 continue 2
 expectPORTB 0x00
 checkResult
 
+
 test "PINA: 0x04, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01 => PORTB: 0x01"
+printPORTC x
 setPINA 0x04
 continue 2
+
+printPORTC x
 setPINA 0x00
 continue 2
+
+printPORTC x
 setPINA 0x01
 continue 2
+
+printPORTC x
 setPINA 0x00
 continue 2
+
+printPORTC x
 setPINA 0x02
 continue 2
+
+printPORTC x
 setPINA 0x00
 continue 2
+
+printPORTC x
 setPINA 0x01
 continue 2
-expectPORTB 0x01
+
+printPORTC x
+expectPORTB 0x01 
 checkResult
 
 # Report on how many tests passed/tests ran
