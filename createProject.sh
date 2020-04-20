@@ -4,7 +4,7 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" > /dev/null 2>&1 && pwd )"
 echo 'Creating a new AVR project. Input the following or hit enter for the [default].'
 read -p 'Project name: ' name
 read -p 'Partners name [none]: ' partner
-read -p 'Microcontroller [atmega1284]: ' mmcu
+read -p 'Microcontroller [atmega1284p]: ' mmcu
 read -p 'Clock Frequency [8000000]: ' freq
 echo "Creating project..."
 
@@ -14,7 +14,7 @@ then
     exit 1;
 fi
 
-mmcu=${mmcuu:-atmega1284}
+mmcu=${mmcuu:-atmega1284p}
 freq=${freq:-8000000}
 
 # Create the directory structure
@@ -60,7 +60,7 @@ EOF
 # Create the Makefile
 echo '# University of California, Riverside' > "$name"/Makefile
 echo '# CS120B Makefile' >> "$name"/Makefile
-echo 'MMCU=atmega1284' >> "$name"/Makefile
+echo 'MMCU=atmega1284p' >> "$name"/Makefile
 echo 'FREQ=8000000' >> "$name"/Makefile
 cat $SCRIPTDIR/templates/MakefileTemplate >> "$name"/Makefile
 
