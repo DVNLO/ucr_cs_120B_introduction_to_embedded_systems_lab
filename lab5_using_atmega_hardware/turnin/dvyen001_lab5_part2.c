@@ -29,7 +29,7 @@ void tick()
     switch(state)
     {
         case INIT:
-            PORTC_VAL = 7;
+            PORTC_VAL = 0;
             state = WAIT;
             break;
         case WAIT:

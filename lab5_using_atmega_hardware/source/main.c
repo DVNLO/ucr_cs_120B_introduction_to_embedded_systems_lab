@@ -1,9 +1,9 @@
 /*	Author: Daniel Vyenielo
  *  Partner(s) Name: 
  *	Lab Section: 21
- *	Assignment: Lab 5  Exercise 2
+ *	Assignment: Lab 5  Exercise 3
  *	Exercise Description:
- *  Make a sr - latch state machine
+ *  Allows the user to input A0 or A1 to left or right shift a display
  *
  *	I acknowledge all content contained herein, excluding template or example
  *	code, is my own original work.
@@ -17,10 +17,10 @@
 #include "bit_manipulation.h"
 #include "utilities.h"
 
-enum { INIT, WAIT, INCREMENT_WAIT, DECREMENT_WAIT, RESET } state;
+enum { START, INIT, WAIT_PRESS, WAIT_RELEASE } state;
+unsigned char output;
 unsigned char A0;
 unsigned char A1;
-unsigned char PORTC_VAL;
 
 void tick()
 {
@@ -28,94 +28,47 @@ void tick()
     A1 = !get_bit(1, PINA);
     switch(state)
     {
-        case INIT:
-            PORTC_VAL = 7;
-            state = WAIT;
+        case START:
+            output = 0x01;
+            state = WAIT_PRESS;
             break;
-        case WAIT:
-            if(!A0 && !A1)
+        case WAIT_PRESS:
+            if(A0 && !A1)
             {
-                state = WAIT;
+                output <<= 1;
+                if(output > 0x20)
+                    output = 0x01;
+                state = WAIT_RELEASE;
             }
             else if(!A0 && A1)
             {
-                if(PORTC_VAL)
-                    --PORTC_VAL;
-                state = DECREMENT_WAIT;
-            }
-            else if(A0 && !A1)
-            {
-                if(PORTC_VAL < 9)
-                    ++PORTC_VAL;
-                state = INCREMENT_WAIT;
-            }
-            else if(A0 && A1)
-            {
-                PORTC_VAL = 0;
-                state = RESET;
+                output >>= 1;
+                if(!output)
+                    output = 0x20;
+                state = WAIT_RELEASE;
             }
             break;
-        case INCREMENT_WAIT:
-            if(!A0 && !A1)
+        case WAIT_RELEASE:
+            if(A0 || A1)
             {
-                state = WAIT;
-            }
-            else if(!A0 && A1)
-            {
-                if(PORTC_VAL)
-                    --PORTC_VAL;
-                state = DECREMENT_WAIT;
-            }
-            else if(A0 && !A1)
-            {
-                state = INCREMENT_WAIT;
-            }
-            else if(A0 && A1)
-            {
-                PORTC_VAL = 0;
-                state = RESET;
-            }
-            break; 
-        case DECREMENT_WAIT:
-           if(!A0 && !A1)
-            {
-                state = WAIT;
-            }
-            else if(!A0 && A1)
-            {
-                state = DECREMENT_WAIT;
-            }
-            else if(A0 && !A1)
-            {
-                if(PORTC_VAL < 9)
-                    ++PORTC_VAL;
-                state = INCREMENT_WAIT;
-            }
-            else if(A0 && A1)
-            {
-                PORTC_VAL = 0;
-                state = RESET;
-            }
-            break; 
-        case RESET:
-            if(A0 && A1)
-            {
-                state = RESET;
+                state = WAIT_RELEASE;
             }
             else
             {
-                state = WAIT;
+                state = WAIT_PRESS;
             }
             break;
+        default:
+            break;
     }
-    PORTC = PORTC_VAL;
+    PORTB = output;
 }
 
 int main(void) 
 {
     initialize_port('A', DDR_INPUT, INIT_VAL_INPUT);
-    initialize_port('C', DDR_OUTPUT, INIT_VAL_OUTPUT);
-    state = INIT;
+    initialize_port('B', DDR_OUTPUT, INIT_VAL_OUTPUT);
+    state = START;
     while (1) 
     {
         tick();
