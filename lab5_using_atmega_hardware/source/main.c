@@ -1,7 +1,7 @@
 /*	Author: Daniel Vyenielo
  *  Partner(s) Name: 
  *	Lab Section: 21
- *	Assignment: Lab 4  Exercise 2
+ *	Assignment: Lab 5  Exercise 2
  *	Exercise Description:
  *  Make a sr - latch state machine
  *
