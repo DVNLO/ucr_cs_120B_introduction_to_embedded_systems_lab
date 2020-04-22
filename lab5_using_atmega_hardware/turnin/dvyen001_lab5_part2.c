@@ -4,7 +4,7 @@
  *	Assignment: Lab 5  Exercise 2
  *	Exercise Description:
  *  Make a sr - latch state machine
- *
+ *      https://drive.google.com/open?id=1-qczAqNHtoBGfwIkwvLt1P2fbmTy6UGQ
  *	I acknowledge all content contained herein, excluding template or example
  *	code, is my own original work.
  */
