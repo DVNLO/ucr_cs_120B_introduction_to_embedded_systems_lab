@@ -31,29 +31,19 @@ test "t == 0 && PINB == 0x00"
 expectPORTB 0x00
 checkResult
 
-test "t == 50 && PINB == 0x01"
-continue 120000
+test "t == 1 && PINB == 0x01"
+continue 1
 expectPORTB 0x01
 checkResult
 
-test "t == 300 && PINB == 0x02"
-continue 250
+test "t == 2 && PINB == 0x02"
+continue 1
 expectPORTB 0x02
 checkResult
 
-test "t == 600 && PINB == 0x04"
-continue 300
+test "t == 3 && PINB == 0x04"
+continue 1
 expectPORTB 0x04
-checkResult
-
-test "t == 900 && PINB == 0x02"
-continue 300
-expectPORTB 0x02
-checkResult
-
-test "t == 1200 && PINB = 0x01"
-continue 300
-expectPORTB 0x01
 checkResult
 
 # Report on how many tests passed/tests ran
