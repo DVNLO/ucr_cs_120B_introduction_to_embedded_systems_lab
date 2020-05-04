@@ -32,27 +32,27 @@ expectPORTB 0x00
 checkResult
 
 test "t == 50 && PINB == 0x01"
-continue 120000
+timeContinue 300
 expectPORTB 0x01
 checkResult
 
 test "t == 300 && PINB == 0x02"
-continue 250
+timeContinue 300
 expectPORTB 0x02
 checkResult
 
 test "t == 600 && PINB == 0x04"
-continue 300
+timeContinue 300
 expectPORTB 0x04
 checkResult
 
 test "t == 900 && PINB == 0x02"
-continue 300
+timeContinue 300
 expectPORTB 0x02
 checkResult
 
 test "t == 1200 && PINB = 0x01"
-continue 300
+timeContinue 300
 expectPORTB 0x01
 checkResult
 
