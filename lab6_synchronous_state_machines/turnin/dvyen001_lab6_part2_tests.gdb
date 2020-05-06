@@ -1,4 +1,4 @@
-# Test file for "lab4_state_machines"
+# Test file for "lab6_synchronous_state_machines"
 
 
 # commands.gdb provides the following functions for ease:
@@ -26,10 +26,34 @@
 echo ======================================================\n
 echo Running all tests..."\n\n
 
-test "PINA: 0x00 => PINC: 0x07"
-setPINA 0x00
-continue 2
-expectPORTC 0x07
+# Example test:
+test "t == 0 && PINB == 0x00"
+expectPORTB 0x00
+checkResult
+
+test "t == 50 && PINB == 0x01"
+timeContinue 300
+expectPORTB 0x01
+checkResult
+
+test "t == 300 && PINB == 0x02"
+timeContinue 300
+expectPORTB 0x02
+checkResult
+
+test "t == 600 && PINB == 0x04"
+timeContinue 300
+expectPORTB 0x04
+checkResult
+
+test "t == 900 && PINB == 0x02"
+timeContinue 300
+expectPORTB 0x02
+checkResult
+
+test "t == 1200 && PINB = 0x01"
+timeContinue 300
+expectPORTB 0x01
 checkResult
 
 # Report on how many tests passed/tests ran
