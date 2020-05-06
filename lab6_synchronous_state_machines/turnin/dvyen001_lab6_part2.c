@@ -20,8 +20,7 @@
 
 enum { START, INIT, OUT0, OUT1_UP, OUT2, OUT1_DOWN, PRESS1, RELEASE, PRESS2 } state;
 unsigned char output;
-unsigned short i;
-unsigned short PERIOD = 300;
+int return_state;
 
 unsigned char is_pressed()
 {
@@ -34,55 +33,50 @@ void tick()
     {
         case START:
             state = OUT0;
-            i = 0;
             break;
         case OUT0:
             if(is_pressed())
             {
-                state = PRESS1;
+                return_state = state;
+				state = PRESS1;
             }
-            else if(i > PERIOD)
-            {
-                i = 0;
+            else 
+			{
                 state = OUT1_UP;
             }
-            ++i;
             break;
         case OUT1_UP:
             if(is_pressed())
             {
+				return_state = state;
                 state = PRESS1;
             }
-            else if(i > PERIOD)
-            {
-                i = 0;
+            else 
+			{
                 state = OUT2;
             }
-            ++i;
             break;
         case OUT2:
             if(is_pressed())
             {
+				return_state = state;
                 state = PRESS1;
             }
-            else if(i > PERIOD)
+            else
             {
-                i = 0;
                 state = OUT1_DOWN;
             }
-            ++i;
             break;
         case OUT1_DOWN:
             if(is_pressed())
             {
+				return_state = state;
                 state = PRESS1;
             }
-            else if(i > PERIOD)
+            else
             {
-                i = 0;
                 state = OUT0;
             }
-            ++i;
             break;
         case PRESS1:
             if(is_pressed())
@@ -111,8 +105,7 @@ void tick()
             }
             else
             {
-                state = OUT0;
-                i = 0;
+                state = return_state;
             }
             break;
         default:
@@ -149,16 +142,16 @@ int main(void)
     initialize_port('A', DDR_INPUT, INIT_VAL_INPUT);
     initialize_port('B', DDR_OUTPUT, INIT_VAL_OUTPUT);
     state = START;
-    TimerSet(1);
+    TimerSet(300);
     TimerOn();
     while (1) 
     {
-        while(!TimerFlag)
+		tick();
+		while(!TimerFlag)
         {
             ;
         }
         TimerFlag = 0;
-        tick();
     }
     return 1;
 }
