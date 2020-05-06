@@ -22,7 +22,7 @@ void TimerISR()
     TimerFlag = 1;
 }
 
-ISR(TIMER1_COMPA_vect)
+void ISR(TIMER1_COMPA_vect)
 {
     --_avr_timer_cntcurr;
     if(_avr_timer_cntcurr == 0)
