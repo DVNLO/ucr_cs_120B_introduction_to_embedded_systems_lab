@@ -1,3 +1,17 @@
+# timeContine
+define timeContinue
+    if $argc > 0
+        set $i = $arg0
+    else
+        set $i = 1
+    end
+    while $i > 0
+        set TimerFlag = 1
+        continue
+        set $i = $i - 1
+    end
+end
+
 # commands.gdb provides the following functions for ease:
 #   test "<message>"
 #   checkResult
