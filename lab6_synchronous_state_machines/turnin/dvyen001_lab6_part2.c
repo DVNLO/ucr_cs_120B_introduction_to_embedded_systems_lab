@@ -20,7 +20,7 @@
 
 enum { START, CYCLE, PRESS1, RELEASE, PRESS2 } state;
 unsigned char output[] = { 0x01, 0x02, 0x04, 0x02 };
-unsigned char i = -1;
+unsigned char i;
 
 unsigned char is_pressed()
 {
@@ -32,6 +32,7 @@ void tick()
     switch(state)
     {
         case START:
+            i = 0;
             state = CYCLE;
             break;
         case CYCLE:
