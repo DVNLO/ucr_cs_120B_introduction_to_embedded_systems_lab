@@ -1,6 +1,7 @@
 // Project: $name
 // Author(s): $USER
 #include <avr/io.h>
+#include <interrupt.h>
 #ifdef _SIMULATE_
 #include "simAVRHeader.h"
 #endif
