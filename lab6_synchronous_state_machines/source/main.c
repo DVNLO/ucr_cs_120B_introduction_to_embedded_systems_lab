@@ -1,14 +1,14 @@
 /*	Author: Daniel Vyenielo
  *  Partner(s) Name: 
  *	Lab Section: 21
- *	Assignment: Lab 5  Exercise 2
+ *	Assignment: Lab 6  Exercise 2
  *	Exercise Description:
- *  Make a sr - latch state machine
- *      https://drive.google.com/open?id=1-qczAqNHtoBGfwIkwvLt1P2fbmTy6UGQ
+ *
  *	I acknowledge all content contained herein, excluding template or example
  *	code, is my own original work.
  */
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #ifdef _SIMULATE_
 #include "simAVRHeader.h"
 #endif
@@ -18,115 +18,125 @@
 #include "timer.h"
 #include "utilities.h"
 
-enum { INIT, WAIT, INCREMENT_WAIT, DECREMENT_WAIT, RESET } state;
-unsigned char A0;
-unsigned char A1;
-unsigned char PORTC_VAL;
+enum { START, INIT, OUT0, OUT1, OUT2, PRESS1, RELEASE, PRESS2 } state;
+unsigned char output;
+int return_state;
+
+unsigned char is_pressed()
+{
+    return !get_bit(0,PINA);
+}
 
 void tick()
 {
-    A0 = !get_bit(0, PINA);
-    A1 = !get_bit(1, PINA);
     switch(state)
     {
-        case INIT:
-            PORTC_VAL = 7;
-            state = WAIT;
+        case START:
+            state = OUT0;
             break;
-        case WAIT:
-            if(!A0 && !A1)
+        case OUT0:
+            if(is_pressed())
             {
-                state = WAIT;
+				state = PRESS1;
             }
-            else if(!A0 && A1)
-            {
-                if(PORTC_VAL)
-                    --PORTC_VAL;
-                state = DECREMENT_WAIT;
-            }
-            else if(A0 && !A1)
-            {
-                if(PORTC_VAL < 9)
-                    ++PORTC_VAL;
-                state = INCREMENT_WAIT;
-            }
-            else if(A0 && A1)
-            {
-                PORTC_VAL = 0;
-                state = RESET;
+            else 
+			{
+                state = OUT1;
             }
             break;
-        case INCREMENT_WAIT:
-            if(!A0 && !A1)
+        case OUT1:
+            if(is_pressed())
             {
-                state = WAIT;
+                state = PRESS1;
             }
-            else if(!A0 && A1)
-            {
-                if(PORTC_VAL)
-                    --PORTC_VAL;
-                state = DECREMENT_WAIT;
+            else 
+			{
+                state = OUT2;
             }
-            else if(A0 && !A1)
+            break;
+        case OUT2:
+            if(is_pressed())
             {
-                state = INCREMENT_WAIT;
-            }
-            else if(A0 && A1)
-            {
-                PORTC_VAL = 0;
-                state = RESET;
-            }
-            break; 
-        case DECREMENT_WAIT:
-           if(!A0 && !A1)
-            {
-                state = WAIT;
-            }
-            else if(!A0 && A1)
-            {
-                state = DECREMENT_WAIT;
-            }
-            else if(A0 && !A1)
-            {
-                if(PORTC_VAL < 9)
-                    ++PORTC_VAL;
-                state = INCREMENT_WAIT;
-            }
-            else if(A0 && A1)
-            {
-                PORTC_VAL = 0;
-                state = RESET;
-            }
-            break; 
-        case RESET:
-            if(A0 && A1)
-            {
-                state = RESET;
+                state = PRESS1;
             }
             else
             {
-                state = WAIT;
+                state = OUT0;
             }
             break;
+        case PRESS1:
+            if(is_pressed())
+            {
+                state = PRESS1;
+            }
+            else
+            {
+                state = RELEASE;
+            }
+            break;
+        case RELEASE:
+            if(is_pressed())
+            {
+                state = PRESS2;
+            }
+            else
+            {
+                state = RELEASE;
+            }
+            break;
+        case PRESS2:
+            if(is_pressed())
+            {
+                state = PRESS2;
+            }
+            else
+            {
+                state = return_state;
+            }
+            break;
+        default:
+            break;
     }
-    PORTC = PORTC_VAL;
+    switch(state)
+    {
+        case START:
+            break;
+        case OUT0:
+            output = 0x01;
+            break;
+        case OUT1:
+            output = 0x02;
+            break;
+        case OUT2:
+            output = 0x04;
+            break;
+        case PRESS1:
+            break;
+        case RELEASE: 
+            break;
+        case PRESS2:
+            break;
+        default:
+            break;
+    }
+    PORTB = output;
 }
 
 int main(void) 
 {
     initialize_port('A', DDR_INPUT, INIT_VAL_INPUT);
-    initialize_port('C', DDR_OUTPUT, INIT_VAL_OUTPUT);
-    TimerSet(100);
+    initialize_port('B', DDR_OUTPUT, INIT_VAL_OUTPUT);
+    state = START;
+    TimerSet(300);
     TimerOn();
-    state = INIT;
     while (1) 
     {
-        while(!TimerFlag)
+		tick();
+		while(!TimerFlag)
         {
             ;
         }
         TimerFlag = 0;
-        tick();
     }
     return 1;
 }

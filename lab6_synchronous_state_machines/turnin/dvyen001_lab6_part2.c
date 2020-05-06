@@ -18,7 +18,7 @@
 #include "timer.h"
 #include "utilities.h"
 
-enum { START, INIT, OUT0, OUT1_UP, OUT2, OUT1_DOWN, PRESS1, RELEASE, PRESS2 } state;
+enum { START, INIT, OUT0, OUT1, OUT2, PRESS1, RELEASE, PRESS2 } state;
 unsigned char output;
 int return_state;
 
@@ -37,18 +37,16 @@ void tick()
         case OUT0:
             if(is_pressed())
             {
-                return_state = state;
 				state = PRESS1;
             }
             else 
 			{
-                state = OUT1_UP;
+                state = OUT1;
             }
             break;
-        case OUT1_UP:
+        case OUT1:
             if(is_pressed())
             {
-				return_state = state;
                 state = PRESS1;
             }
             else 
@@ -59,18 +57,6 @@ void tick()
         case OUT2:
             if(is_pressed())
             {
-				return_state = state;
-                state = PRESS1;
-            }
-            else
-            {
-                state = OUT1_DOWN;
-            }
-            break;
-        case OUT1_DOWN:
-            if(is_pressed())
-            {
-				return_state = state;
                 state = PRESS1;
             }
             else
@@ -118,8 +104,7 @@ void tick()
         case OUT0:
             output = 0x01;
             break;
-        case OUT1_UP: 
-        case OUT1_DOWN:
+        case OUT1:
             output = 0x02;
             break;
         case OUT2:
