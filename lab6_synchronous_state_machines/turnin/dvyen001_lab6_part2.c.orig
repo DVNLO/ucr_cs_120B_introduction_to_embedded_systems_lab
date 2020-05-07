@@ -21,7 +21,10 @@
 enum { START, CYCLE, PRESS0, HOLD0, WAIT } state;
 unsigned char output[] = { 0x01, 0x02, 0x04, 0x02 };
 unsigned char i;
+<<<<<<< HEAD
 unsigned char has_released = 1U;
+=======
+>>>>>>> 3fb2acf49add5beba78062269d3175c3de064110
 
 unsigned char is_pressed()
 {
@@ -34,7 +37,11 @@ void tick()
     switch(state)
     {
         case START:
+<<<<<<< HEAD
+			i = 0;
+=======
             i = 0;
+>>>>>>> 3fb2acf49add5beba78062269d3175c3de064110
             state = CYCLE;
             break;
         case CYCLE:
@@ -64,15 +71,25 @@ void tick()
 		case HOLD0:
             if(press)
             {
+<<<<<<< HEAD
 				state = HOLD0;
+=======
+                i = 0;
+                state = CYCLE;
+>>>>>>> 3fb2acf49add5beba78062269d3175c3de064110
             }
             else
             {
                 state = WAIT;
             }
             break;
-	case WAIT:
+<<<<<<< HEAD
+		case WAIT:
             if(press)
+=======
+/*        case PRESS2:
+            if(is_pressed())
+>>>>>>> 3fb2acf49add5beba78062269d3175c3de064110
             {
 				i = 0;
 				has_released = 0U;
@@ -83,7 +100,11 @@ void tick()
                 state = WAIT;
             }
             break;
-       default:
+<<<<<<< HEAD
+		default:
+=======
+ */       default:
+>>>>>>> 3fb2acf49add5beba78062269d3175c3de064110
             break;
     }
     PORTB = output[i];
