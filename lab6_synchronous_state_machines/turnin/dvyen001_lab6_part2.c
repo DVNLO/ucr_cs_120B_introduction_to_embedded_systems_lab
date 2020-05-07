@@ -83,7 +83,7 @@ void tick()
                 state = WAIT;
             }
             break;
-       default:
+    default:
             break;
     }
     PORTB = output[i];
