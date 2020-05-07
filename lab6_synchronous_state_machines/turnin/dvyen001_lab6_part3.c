@@ -1,10 +1,9 @@
 /*	Author: Daniel Vyenielo
  *  Partner(s) Name: 
  *	Lab Section: 21
- *	Assignment: Lab 5  Exercise 2
+ *	Assignment: Lab 6  Exercise 3
  *	Exercise Description:
- *  Make a sr - latch state machine
- *      https://drive.google.com/open?id=1-qczAqNHtoBGfwIkwvLt1P2fbmTy6UGQ
+ *	Demo : https://drive.google.com/file/d/13iT8MnMpBZRbNtXrm4287qTV1njehFa5/view?usp=sharing
  *	I acknowledge all content contained herein, excluding template or example
  *	code, is my own original work.
  */
