@@ -18,9 +18,10 @@
 #include "timer.h"
 #include "utilities.h"
 
-enum { START, CYCLE, PRESS1, RELEASE, PRESS2 } state;
+enum { START, CYCLE, PRESS0, HOLD0, WAIT } state;
 unsigned char output[] = { 0x01, 0x02, 0x04, 0x02 };
-unsigned char i = -1;
+unsigned char i;
+unsigned char has_released = 1U;
 
 unsigned char is_pressed()
 {
@@ -29,15 +30,19 @@ unsigned char is_pressed()
 
 void tick()
 {
+	unsigned char press = is_pressed();
     switch(state)
     {
         case START:
+			i = 0;
             state = CYCLE;
             break;
         case CYCLE:
-            if(is_pressed())
+			if(!press)
+				has_released = 1U;
+            if(has_released && press)
             {
-				state = PRESS1;
+				state = PRESS0;
             }
             else 
 			{
@@ -46,37 +51,39 @@ void tick()
                     i = 0;
             }
             break;
-        case PRESS1:
-            if(is_pressed())
+        case PRESS0:
+            if(press)
             {
-                state = PRESS1;
+				state = HOLD0;
             }
             else
             {
-                state = RELEASE;
+                state = WAIT;
             }
             break;
-        case RELEASE:
-            if(is_pressed())
+		case HOLD0:
+            if(press)
             {
-                state = PRESS2;
+				state = HOLD0;
             }
             else
             {
-                state = RELEASE;
+                state = WAIT;
             }
             break;
-        case PRESS2:
-            if(is_pressed())
+		case WAIT:
+            if(press)
             {
-                state = PRESS2;
-            }
-            else
-            {
+				i = 0;
+				has_released = 0U;
                 state = CYCLE;
             }
+            else
+            {
+                state = WAIT;
+            }
             break;
-        default:
+		default:
             break;
     }
     PORTB = output[i];
