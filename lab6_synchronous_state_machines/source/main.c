@@ -60,14 +60,15 @@ void tick()
         case RELEASE:
             if(is_pressed())
             {
-                state = PRESS2;
+                i = 0;
+                state = CYCLE;
             }
             else
             {
                 state = RELEASE;
             }
             break;
-        case PRESS2:
+/*        case PRESS2:
             if(is_pressed())
             {
                 state = PRESS2;
@@ -77,7 +78,7 @@ void tick()
                 state = CYCLE;
             }
             break;
-        default:
+ */       default:
             break;
     }
     PORTB = output[i];
