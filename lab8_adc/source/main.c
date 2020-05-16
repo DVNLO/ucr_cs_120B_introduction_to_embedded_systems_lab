@@ -1,7 +1,7 @@
 /*	Author: Daniel Vyenielo
  *  Partner(s) Name: 
  *	Lab Section: 21
- *	Assignment: Lab 8 Exercise 3
+ *	Assignment: Lab 8 Exercise 4
  *	Exercise Description:
  *	Demo:  
  *	I acknowledge all content contained herein, excluding template or example
@@ -22,15 +22,17 @@
 
 unsigned short read_val;
 
+unsigned char i = 0;
+unsigned char output = 0x01;
 
 void tick(unsigned short const * const ranges, 
             unsigned short const ranges_size)
 {
     read_val = ADC;
-    unsigned char i = 0;
-    unsigned char output = 0x01;
+	i = 0;
+	output = 0x01;
     while(i < ranges_size 
-            && read_val > ranges[i])    // could use binary search but it's only 8 vals.
+            && read_val > ranges[i])
     {
         ++i;
         output <<= 1;
@@ -43,7 +45,6 @@ int main(void)
 {
     initialize_port('A', DDR_INPUT, INIT_VAL_INPUT);
     initialize_port('B', DDR_OUTPUT, INIT_VAL_OUTPUT);
-    initialize_port('C', DDR_OUTPUT, INIT_VAL_OUTPUT);
     initialize_port('D', DDR_OUTPUT, INIT_VAL_OUTPUT);
     ADC_init();
     TimerSet(10);
