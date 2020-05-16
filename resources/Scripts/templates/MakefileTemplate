@@ -1,0 +1,52 @@
+
+PATHB=build/
+PATHO=$(PATHB)objects/
+PATHS=source/
+PATHT=test/
+PATHH=header/
+PATHR=$(PATHB)results/
+
+SOURCES=$(wildcard $(PATHS)*.c)
+OBJS=$(patsubst $(PATHS)%,$(PATHO)%,$(SOURCES:.c=.o))
+
+CLEAN=rm -rf
+# Simulator
+SIMAVRDIR=/usr/csshare/src/simavr # TODO System dependent
+SIMAVR=simavr
+
+# Compiler
+AVR=avr-gcc
+DEBUGFLAGS=-g -Og 
+SIMFLAGS=-D_SIMULATE_
+# Place the section past the end of reachable memory
+MMCUSECTION=-Wl,--undefined=_mmcu,--section-start=.mmcu=910000 
+FLAGS=-Wall -mmcu=$(MMCU) $(MMCUSECTION)
+INCLUDES=-I./$(PATHH) -I$(SIMAVRDIR)
+OBJCOPY=avr-objcopy
+OBJFLAGS=-j .text -j .data -O ihex
+# Debugger
+GDB=avr-gdb
+TESTCOMMANDS=$(PATHT)commands.gdb
+TESTSCRIPT=$(PATHT)tests.gdb
+TESTING=-batch -x $(TESTCOMMANDS) -x $(TESTSCRIPT)
+
+.PHONY: clean test
+all: $(PATHB)main.hex
+
+test: $(PATHO)main.elf
+	$(SIMAVR) -v -v -v -v -g -mmcu=$(MMCU) -f $(FREQ) $< &
+	$(GDB) $(TESTING)
+	@pkill simavr
+
+$(PATHB)main.hex: $(PATHO)main.elf
+	@$(OBJCOPY) $(OBJFLAGS) $< $@
+
+$(PATHO)main.elf: $(OBJS)
+	@$(AVR) $(DEBUGFLAGS) $(SIMFLAGS) $(FLAGS) $(INCLUDES) -o $@ $<
+
+$(PATHO)%.o: $(PATHS)%.c
+	@$(AVR) $(DEBUGFLAGS) $(SIMFLAGS) $(FLAGS) $(INCLUDES) -c -o $@ $<
+
+clean:
+	$(CLEAN) $(PATHO)*.o $(PATHO)*.elf $(PATHB)*.hex
+	$(CLEAN) $(PATHR)*.vcd
