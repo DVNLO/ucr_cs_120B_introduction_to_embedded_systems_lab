@@ -22,13 +22,15 @@
 
 unsigned short read_val;
 
+unsigned char i = 0;
+unsigned char output = 0x01;
 
 void tick(unsigned short const * const ranges, 
             unsigned short const ranges_size)
 {
     read_val = ADC;
-    unsigned char i = 0;
-    unsigned char output = 0x01;
+	i = 0;
+	output = 0x01;
     while(i < ranges_size 
             && read_val > ranges[i])
     {
