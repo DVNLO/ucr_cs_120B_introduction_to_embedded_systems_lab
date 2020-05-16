@@ -22,21 +22,23 @@
 
 unsigned short read_val;
 
+unsigned short const PHOTO_MIN = 0x0030;
+unsigned short const PHOTO_MAX = 0x00C0;
+unsigned short const PHOTO_THRESHOLD = 0x00C0 / 2;
 
-void tick(unsigned short const * const ranges, 
-            unsigned short const ranges_size)
+void tick()
 {
     read_val = ADC;
-    unsigned char i = 0;
-    unsigned char output = 0x01;
-    while(i < ranges_size 
-            && read_val > ranges[i])    // could use binary search but it's only 8 vals.
+    if(read_val >= PHOTO_THRESHOLD)
     {
-        ++i;
-        output <<= 1;
-        ++output;
+        PORTC = 0x01;
     }
-    PORTB = output;
+    else
+    {
+        PORTC = 0x00;
+    }
+    PORTB = (unsigned char)read_val;
+    PORTD = (read_val >> 8) & 0x03;
 }
 
 int main(void) 
@@ -48,24 +50,9 @@ int main(void)
     ADC_init();
     TimerSet(10);
     TimerOn();
-    static unsigned short const PHOTO_MIN = 0x0030;
-    static unsigned short const PHOTO_MAX = 0x00C0;
-    static unsigned short const PHOTO_RANGE = PHOTO_MAX - PHOTO_MIN;
-    static unsigned short const PHOTO_LED_COUNT = 8;
-    static unsigned short const PHOTO_RANGE_PER_LED = PHOTO_RANGE / PHOTO_LED_COUNT;
-    unsigned short ranges[PHOTO_LED_COUNT];
-    unsigned short const * const ranges_handle = ranges;
-    unsigned short i = 0;
-    ranges[i] = PHOTO_MIN;
-    ++i;
-    while(i < PHOTO_LED_COUNT)
-    {
-        ranges[i] = ranges[i - 1] + PHOTO_RANGE_PER_LED;
-        ++i;
-    }
     while (1) 
     {
-		tick(ranges_handle, PHOTO_LED_COUNT);
+		tick();
         while(!TimerFlag)
         {
             continue;
