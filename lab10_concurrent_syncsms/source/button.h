@@ -1,4 +1,8 @@
-typedef enum button_state{ INIT, RELEASED, PRESS, PRESSED, RELEASE } button_state;
+typedef enum button_states{ BUTTON_INIT, 
+                            BUTTON_RELEASED, 
+                            BUTTON_PRESS, 
+                            BUTTON_PRESSED, 
+                            BUTTON_RELEASE } button_state;
 
 button_state 
 change_button_state(button_state const current_state,
@@ -9,35 +13,35 @@ change_button_state(button_state const current_state,
     button_state next_state;
     switch(current_state)
     {
-        case INIT:
-            next_state = RELEASED;
+        case BUTTON_INIT:
+            next_state = BUTTON_RELEASED;
             break;
-        case RELEASED:
+        case BUTTON_RELEASED:
             if(is_pressed)
-                next_state = PRESS;
+                next_state = BUTTON_PRESS;
             else
-                next_state = RELEASED;
+                next_state = BUTTON_RELEASED;
             break;
-        case PRESS:
+        case BUTTON_PRESS:
             if(is_pressed)
-                next_state = PRESSED;
+                next_state = BUTTON_PRESSED;
             else
-                next_state = RELEASE;
+                next_state = BUTTON_RELEASE;
             break;
-        case PRESSED:
+        case BUTTON_PRESSED:
             if(is_pressed)
-                next_state = PRESSED;
+                next_state = BUTTON_PRESSED;
             else
-                next_state = RELEASE;
+                next_state = BUTTON_RELEASE;
             break;
-        case RELEASE:
+        case BUTTON_RELEASE:
             if(is_pressed)
-                next_state = PRESS;
+                next_state = BUTTON_PRESS;
             else
-                next_state = RELEASED;
+                next_state = BUTTON_RELEASED;
             break;
         default:
-            next_state = INIT;
+            next_state = BUTTON_INIT;
             break;
     }
     return next_state;
