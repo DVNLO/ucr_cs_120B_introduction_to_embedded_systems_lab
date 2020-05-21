@@ -1,7 +1,7 @@
 /*	Author: Daniel Vyenielo
- *  Partner(s) Name: 
+ *  	Partner(s) Name: 
  *	Lab Section: 21
- *	Assignment: Lab 10 Exercise 3
+ *	Assignment: Lab 10 Exercise 4
  *	Exercise Description:
  *	Demo:  
  *	I acknowledge all content contained herein, excluding template or example

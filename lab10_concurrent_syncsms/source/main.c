@@ -1,7 +1,7 @@
 /*	Author: Daniel Vyenielo
- *  Partner(s) Name: 
+ *  	Partner(s) Name: 
  *	Lab Section: 21
- *	Assignment: Lab 10 Exercise 3
+ *	Assignment: Lab 10 Exercise 4
  *	Exercise Description:
  *	Demo:  
  *	I acknowledge all content contained herein, excluding template or example
@@ -197,13 +197,23 @@ speaker_action(speaker_state const current_state)
 }
 
 unsigned char
-speaker()
+speaker(unsigned char const button_up_output,
+        unsigned char const button_down_output)
 {
-    static unsigned short const PERIOD = 2;
-    static unsigned short t = PERIOD;
+    static unsigned short period = 2;
+    static unsigned short t = 2;
     static speaker_state current_state = SPK_INIT;
     static unsigned char current_output = 0xFF;
-    if(t >= PERIOD)
+    if(button_up_output 
+        && period > 1)
+    {
+        --period;
+    }
+    if(button_down_output)
+    {
+        ++period;
+    }
+    if(t >= period)
     {
         current_state = speaker_transition(current_state);
         current_output = speaker_action(current_state);
@@ -255,6 +265,48 @@ combine_output(unsigned char const three_leds_output,
     return current_output;
 }
 
+unsigned char
+button_up()
+{
+    static button_state current_state = BUTTON_INIT;
+    unsigned char is_button_pressed;
+    unsigned char current_output = 0x00;
+    is_button_pressed = is_pressed(0, PINA);
+    current_state = change_button_state(current_state,
+                                        is_button_pressed);
+    if(current_state == BUTTON_PRESS)
+    {
+        current_output = 0x01;
+    }
+    else if(current_state == BUTTON_PRESSED
+            || current_state == BUTTON_RELEASE)
+    {
+        current_output = 0x00;
+    }
+    return current_output;
+}
+
+unsigned char
+button_down()
+{
+    static button_state current_state = BUTTON_INIT;
+    unsigned char is_button_pressed;
+    unsigned char current_output = 0x00;
+    is_button_pressed = is_pressed(1, PINA);
+    current_state = change_button_state(current_state,
+                                        is_button_pressed);
+    if(current_state == BUTTON_PRESS)
+    {
+        current_output = 0x01;
+    }
+    else if(current_state == BUTTON_PRESSED
+            || current_state == BUTTON_RELEASE)
+    {
+        current_output = 0x00;
+    }
+    return current_output;
+}
+
 void 
 tick()
 {
@@ -262,9 +314,14 @@ tick()
     static unsigned char blink_led_output;
     static unsigned char speaker_output;
     static unsigned char current_output;
+    static unsigned char button_up_output;
+    static unsigned char button_down_output;
     three_leds_output = three_leds();
     blink_led_output = blink_led();
-    speaker_output = speaker();
+    button_up_output = button_up();
+    button_down_output = button_down();
+    speaker_output = speaker(button_up_output, 
+                             button_down_output);
     current_output = combine_output(three_leds_output, 
                                     blink_led_output,
                                     speaker_output);

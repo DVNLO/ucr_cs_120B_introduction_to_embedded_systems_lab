@@ -1,5 +1,5 @@
 /*	Author: Daniel Vyenielo
- *  Partner(s) Name: 
+ *  	Partner(s) Name: 
  *	Lab Section: 21
  *	Assignment: Lab 10 Exercise 2
  *	Exercise Description:
