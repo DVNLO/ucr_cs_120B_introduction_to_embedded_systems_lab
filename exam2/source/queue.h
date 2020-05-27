@@ -1,108 +1,98 @@
-typedef struct 
-{
-    unsigned char * data;
-    unsigned char * begin;
-    unsigned char * end;
-    unsigned long size;
-} 
-queue;
 
-void queue_construct(queue * const q, 
-                     unsigned long const size)
+// Permission to copy is granted provided that this header remains intact. 
+// This software is provided with no warranties.
+
+////////////////////////////////////////////////////////////////////////////////
+
+#ifndef QUEUE_H
+#define QUEUE_H
+
+#include <stdlib.h> // required for malloc
+
+//Circular Queue
+//Data Structure to implement circular queue MAX_SIZE 255
+// ** IMPORTANT ** : Global definitions work, but initalization must occur inside main()
+typedef struct _Queue
 {
-    q->data = (unsigned char *)malloc(size * sizeof(unsigned char));
-    q->begin = q->data;
-    q->end = NULL;
-    q->size = size;
+	unsigned char* buffer; 		// Queue of characters
+	unsigned char front; 		// Queue front index
+	unsigned char back; 		// Queue back index
+	unsigned char num_objects;	// Number of objects in queue
+	unsigned char capacity;		// Size of the queue
+} *Queue;
+////////////////////////////////////////////////////////////////////////////////
+//Functionality - Allocates space and initializes a queue
+//Parameter: Positive integer for the size of queue (0~255)
+//Returns: Reference to a queue
+Queue QueueInit(unsigned char size) 
+{
+	Queue Q 		= malloc (sizeof(struct _Queue));
+	Q->buffer 		= malloc (size * sizeof(unsigned char));
+	Q->front 		= 0;
+	Q->back			= 0;
+	Q->num_objects	= 0;
+	Q->capacity		= size;
+	
+	return Q;
+}
+////////////////////////////////////////////////////////////////////////////////
+//Functionality - Checks if queue is empty
+//Parameter: None
+//Returns: 1 if empty else 0
+unsigned char QueueIsEmpty(Queue Q) 
+{
+	return (Q->num_objects == 0);
+}
+////////////////////////////////////////////////////////////////////////////////
+//Functionality - Checks if queue is full
+//Parameter: None
+//Returns: 1 if full else 0
+unsigned char QueueIsFull(Queue Q) 
+{
+	return (Q->num_objects == Q->capacity);
+}
+////////////////////////////////////////////////////////////////////////////////
+//Functionality - Flushes the queue
+//Parameter: None
+//Returns: None
+void QueueMakeEmpty(Queue Q)
+{
+	Q->front 		= 0;
+	Q->back 		= 0;
+	Q->num_objects	= 0;
+}
+////////////////////////////////////////////////////////////////////////////////
+//Functionality - Push a character onto back of queue
+//Parameter: Takes a single unsigned char value
+//Returns: 1 if full else 0
+unsigned char QueueEnqueue(Queue Q, unsigned char value) 
+{
+	if(Q->num_objects < Q->capacity)	// If queue is not full
+	{
+		Q->buffer[Q->back] = value;		// Place data into correct location
+		Q->back++;						// Increment back counter
+		Q->back %= Q->capacity;			// Modulate according to queue capacity
+		Q->num_objects++;				// Increment number of objects
+		return 0;						// Return queue is not full (0)
+	}
+	return 1;							// Else return queue is full (1)
+}
+////////////////////////////////////////////////////////////////////////////////
+//Functionality - Pop first character from front of queue
+//Parameter: None
+//Returns: Unsigned char from queue else null character
+unsigned char QueueDequeue(Queue Q) 
+{
+	if(Q->num_objects > 0)				// If queue is not empty
+	{									// Retrieve data from correct location
+		unsigned char tmp = Q->buffer[Q->front];	
+		Q->buffer[Q->front] = '\0';		// Clear location with null character
+		Q->front++;						// Increment front counter
+		Q->front %= Q->capacity;		// Modulate according to queue capacity
+		Q->num_objects--;				// Decrement number of objects
+		return tmp;						// Return data
+	}
+	return '\0';						// Else return null to indicate empty
 }
 
-void queue_destruct(queue * const q)
-{
-    free((void *)(q));
-}
-
-unsigned char queue_empty(queue * const q)
-// returns non-zero if the argument q is empty.
-// A queue q is considered empty if the end 
-// of the queue is NULL. 
-{
-    return q->end == NULL;
-}
-
-unsigned long queue_size(queue * const q)
-// returns the size of the argument q.
-{
-    return q->size;
-}
-
-unsigned long queue_abs(long const val)
-// returns the absolute value of argument val.
-{
-    long ret = val;
-    if(ret < 0)
-    {
-        ret *= -1;
-    }
-    return (unsigned long)ret;
-}
-
-unsigned char queue_full(queue * const q)
-// returns non-zero if the argument q is full. 
-// A queue q is considered full if incrementing
-// the end of the q will hit the beginning
-// of the q or the absolute value of the difference
-// between the end and begining is greater than or
-// equal to the size.
-{
-    return q->end + 1 == q->begin 
-            || (queue_abs(q->end - q->begin) + 1) == q->size;
-    // note there are some dangerous edge cases here.
-}
-
-void queue_push(queue * const q,
-                unsigned char data)
-// push argument data into an argument queue q. 
-{
-    if(queue_full(q))
-    {
-        return;
-    }
-    else if(queue_empty(q))
-    {
-        q->begin = q->data;
-        q->end = q->data;
-        *q->end = data;
-    }
-    else
-    {
-        ++q->end;
-        if(q->end >= q->data + q->size)    // out of bounds
-        {
-            q->end = q->data;
-        }
-        *q->end = data;
-    }
-}
-
-unsigned char queue_pop(queue * const q)
-{
-    unsigned char ret = 0x00;
-    if(queue_empty(q))
-    {
-        return ret;
-    }
-    else
-    {
-        ret = *q->begin;
-        ++q->begin;
-        if(q->begin > q->end)
-        {
-            q->end = NULL;
-        }
-        if(q->begin >= q->data + q->size)  // out of bounds
-        {
-            q->begin = q->data;
-        }
-    }
-    return ret;
-}
+#endif //QUEUE_H
