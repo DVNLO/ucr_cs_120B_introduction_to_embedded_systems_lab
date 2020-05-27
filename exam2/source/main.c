@@ -13,12 +13,16 @@
 #endif
 #include "timer.h"
 
+#include <stdlib.h>
+#include "queue.h"
+
 /* SM state declarations --- fill in as needed */
 typedef enum output_states { OInit, Ooutput } output_states;
 typedef enum read_states { RInit, Rread } read_states;
 
 /* shared variables --- fill in as needed */
 unsigned char PA;
+queue * q;
 
 /* state variables --- do not alter */
 output_states output_state;
@@ -48,7 +52,10 @@ void Output()
             PORTB = 0x00;
             break;
         case Ooutput:
-            PORTB = PA;
+            if(!queue_empty(q))
+            {
+                PORTB = queue_pop(q);
+            }
             break;
         default:
             break;
@@ -75,7 +82,14 @@ void Read()
             PA = 0;
             break;
         case Rread:
-            PA = ~PINA;
+            if(!queue_full(q))
+            {
+                queue_push(q, ~PINA);
+            }
+            if(!queue_full(q))
+            {
+                queue_push(q, ~PINA + 1);
+            }
             break;
         default:
             break;
@@ -97,6 +111,8 @@ int main(void)
     // init state vars
     output_state = OInit;
     read_state = RInit;
+    q = (queue *)malloc(sizeof(queue));
+    queue_construct(q, 4);
 
     while (1) {
         Read();
