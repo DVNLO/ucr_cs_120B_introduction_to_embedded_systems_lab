@@ -33,11 +33,26 @@ typedef struct
 }
 task;
 
-#define TASK_COUNT 1
+#ifndef TASK_COUNT
+#define TASK_COUNT 2
+#endif
+#ifndef LCD_COL_COUNT
+#define LCD_COL_COUNT 16
+#endif
 static task tasks[TASK_COUNT];
-static unsigned char const KEYPAD_TASK_ID = 0;
-static unsigned long int KEYPAD_PERIOD = 1;
+static unsigned char const TASK_KEYPAD_ID = 0;
+static unsigned long int const TASK_KEYPAD_PERIOD = 250;
 
+static unsigned char const TASK_LCD_ID = 1;
+static unsigned long int const TASK_LCD_PERIOD = 100;
+#ifndef LCD_COL_COUNT
+#define LCD_COL_COUNT 16
+#endif
+#ifndef LCD_ROW_COUNT
+#define LCD_ROW_COUNT 2
+#endif
+static unsigned char const LCD_POS_OFFSET = 1;
+ 
 enum { KEYPAD_INIT, KEYPAD_SAMPLE } keypad_sampling_state;
 
 int
@@ -66,6 +81,96 @@ keypad_handler(int const current_state)
             break;
     }
     return next_state;
+}
+
+unsigned char  
+get_cursor_position(unsigned char const row_idx,
+                    unsigned char const row_size,
+                    unsigned char const col_idx,
+                    unsigned char const pos_offset)
+// translats row_idx and col_idx to an lcd cursor position.
+{
+    return (row_size * row_idx) + (col_idx + pos_offset);
+}
+
+void
+set_cursor_position(unsigned char const row_idx,
+                    unsigned char const col_idx)
+// sets the cursor position for the LCD used in this lab.
+{
+    unsigned char cursor_position = get_cursor_position(row_idx,
+                                                        LCD_COL_COUNT,
+                                                        col_idx,
+                                                        LCD_POS_OFFSET);
+    LCD_Cursor(cursor_position);
+}
+
+enum { LCD_INIT, LCD_RESET, LCD_MSG_START, LCD_MSG_MID, LCD_MSG_END } lcd_update_state;
+
+void 
+write_msg()
+{
+}
+
+int 
+lcd_handler(int const current_state)
+{
+    static unsigned char msg[] = "CS120B is Legend... wait for it Dary!";
+    static unsigned char * l;   // beginning of msg substr, inclusive
+    static unsigned char * r;   // ending of the msg substr, exclusive
+    static unsigned char lcd_buffer[LCD_COL_COUNT + 1];
+    static unsigned char start_col_idx;   // starting column of msg.
+    int next_state;
+    switch(current_state)
+    {
+        case LCD_INIT:
+            next_state = LCD_RESET;
+            break;
+        case LCD_RESET:
+            next_state = LCD_MSG_START;
+            break;
+        case LCD_MSG_START:
+            if(r - l < LCD_COL_COUNT)
+                next_state = LCD_MSG_START;
+            else
+                next_state = LCD_MSG_MID;
+            break;
+        case LCD_MSG_MID:
+            if(*r)
+                next_state = LCD_MSG_MID;
+            else
+                next_state = LCD_MSG_END;
+            break;
+        case LCD_MSG_END:
+            if(*l)
+                next_state = LCD_MSG_END;
+            else
+                next_state = LCD_RESET;
+        default:
+            next_case = LCD_INIT;
+    }
+    switch(next_state)
+    {
+        case LCD_INIT:
+            break;
+        case LCD_RESET:
+            start_col_idx = LCD_COL_COUNT - 1;
+            l = msg;
+            r = msg + 1;
+            ranged_copy(lcd_buffer, lcd_buffer + LCD_COL_COUNT, ' ');
+            break;
+        case LCD_MSG_START;
+            memcpy(lcd_buffer, l, r - l);
+            lcd_buffer[r - l] = 0;
+            write_msg(lcd_buffer, 0, start_col_idx);
+            ++r;
+            break;
+        case LCD_MSG_MID:
+            break;
+        case LCD_MSG_END:
+            break;
+    }
+    return 0;
 }
 
 void schedule(unsigned long int const SYSTEM_PERIOD)
@@ -168,11 +273,16 @@ void
 initialize_tasks()
 // initializes the system tasks
 {
-    initialize_task(KEYPAD_TASK_ID, 
+    initialize_task(TASK_KEYPAD_ID, 
                     KEYPAD_INIT,
-                    KEYPAD_PERIOD,
-                    KEYPAD_PERIOD,
+                    TASK_KEYPAD_PERIOD,
+                    TASK_KEYPAD_PERIOD,
                     keypad_handler);    // initialize the keypad task 
+    initialize_task(TASK_LCD_ID,
+                    LCD_INIT,
+                    TASK_LCD_PERIOD,
+                    TASK_LCD_PERIOD,
+                    lcd_handler);   // initialize the lcd task
 }
 
 int 
