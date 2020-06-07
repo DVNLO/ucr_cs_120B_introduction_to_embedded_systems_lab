@@ -1,7 +1,7 @@
 /*	Author: Daniel Vyenielo
  *  	Partner(s) Name: 
  *	Lab Section: 21
- *	Assignment: Lab 11 Exercise 3
+ *	Assignment: Lab 11 Exercise 5
  *	Exercise Description:
  *	Demo:  
  *	I acknowledge all content contained herein, excluding template or example
@@ -23,6 +23,7 @@
 #include "timer.h"
 #include "utilities.h"
 #include "keypad.h"
+#include "lcd.h"
 
 typedef struct 
 {
@@ -34,119 +35,62 @@ typedef struct
 task;
 
 #ifndef TASK_COUNT
-#define TASK_COUNT 1
+#define TASK_COUNT 3
 #endif
 static task tasks[TASK_COUNT];
-static unsigned char const TASK_KEYPAD_ID = 0;
-static unsigned long int const TASK_KEYPAD_PERIOD = 250;
 
-static unsigned char const TASK_LCD_ID = 1;
-static unsigned long int const TASK_LCD_PERIOD = 250;
-#ifndef LCD_COL_COUNT
-#define LCD_COL_COUNT 16
+//TASK START_STOP_BUTTON CONFIG
+static unsigned char const TASK_START_STOP_BUTTON_ID = 0;
+static unsigned long int const TASK_START_STOP_BUTTON_PERIOD = 50;  // miliseconds
+static unsigned char const START_STOP_SIGNAL = 'S';
+#ifndef START_STOP_BUTTON_PIN
+#define START_STOP_BUTTON_PIN 0
 #endif
-#ifndef LCD_ROW_COUNT
-#define LCD_ROW_COUNT 2
+
+//TASK UP_BUTTON CONFIG
+static unsigned char const TASK_UP_BUTTON_ID = 1;
+static unsigned long int const TASK_UP_BUTTON_PERIOD = 50;  // miliseconds
+static unsigned char const UP_BUTTON_SIGNAL = 'U';
+#ifndef UP_BUTTON_PIN
+#define UP_BUTTON_PIN 1
+#endif 
+
+//TASK DOWN_BUTTON CONFIG
+static unsigned char const TASK_DOWN_BUTTON_ID = 2;
+static unsigned long int const TASK_DOWN_BUTTON_PERIOD = 50;    // miliseconds
+static unsigned char const DOWN_BUTTON_SIGNAL = 'D';
+#ifndef DOWN_BUTTON_PIN
+#define DOWN_BUTTON_PIN 2
 #endif
-static unsigned char const LCD_POS_OFFSET = 1;
- 
-unsigned char  
-lcd_get_cursor_position(unsigned char const row_idx,
-                        unsigned char const row_size,
-                        unsigned char const col_idx,
-                        unsigned char const pos_offset)
-// translats row_idx and col_idx to an lcd cursor position.
-{
-    return (row_size * row_idx) + (col_idx + pos_offset);
-}
-
-void
-lcd_set_cursor_position(unsigned char const row_idx,
-                        unsigned char const col_idx)
-// sets the cursor position for the LCD used in this lab.
-{
-    unsigned char cursor_position = lcd_get_cursor_position(row_idx,
-                                                            LCD_COL_COUNT,
-                                                            col_idx,
-                                                            LCD_POS_OFFSET);
-    LCD_Cursor(cursor_position);
-}
-
-enum { LCD_INIT, LCD_RESET, LCD_MSG_START, LCD_MSG_MID, LCD_MSG_END } lcd_update_state;
-
-void
-lcd_clear_screen()
-{
-    LCD_ClearScreen();
-}
-
-void
-lcd_write_char(unsigned char const val)
-{
-    LCD_WriteData(val);
-    delay_ms(1);
-}
-
-void 
-lcd_write_chars(unsigned char const * const l,
-                unsigned char const * const r)
-{
-    unsigned char const * i = l;
-    while(i < r)
-    {
-        LCD_WriteData(*i);
-        ++i;
-        delay_ms(1);
-    }
-}
-
-enum { KEYPAD_INIT, KEYPAD_START, KEYPAD_SAMPLE } keypad_sampling_state;
 
 int
-keypad_handler(int const current_state)
+start_stop_button_handler(int const current_state)
 {
-    static unsigned char prev_pressed_key;
-    int next_state;
-    unsigned char cur_pressed_key;
-    switch(current_state)
+    unsigned char const is_button_pressed = is_pressed(START_STOP_BUTTON_PIN, 
+                                                       PINA);
+    button_state next_state = change_button_state(current_state,
+                                                  is_button_pressed);
+    if(next_state == BUTTON_PRESS)
     {
-        case KEYPAD_INIT:
-            next_state = KEYPAD_START;
-            break;
-        case KEYPAD_START:
-            next_state = KEYPAD_SAMPLE;
-            break;
-        case KEYPAD_SAMPLE:
-            next_state = KEYPAD_SAMPLE;
-            break;
-        default:
-            next_state = KEYPAD_INIT;
-    }
-    switch(next_state)
-    {
-        case KEYPAD_INIT:
-            break;
-        case KEYPAD_START:
-            lcd_clear_screen();
-            cur_pressed_key = get_pressed_key();
-            prev_pressed_key = cur_pressed_key;
-            break;
-        case KEYPAD_SAMPLE:
-            cur_pressed_key = get_pressed_key();
-            if(!prev_pressed_key 
-               && prev_pressed_key != cur_pressed_key)
-            {
-                lcd_set_cursor_position(0, 0);
-                lcd_write_char(cur_pressed_key);
-            }
-            display_pressed_key(cur_pressed_key);
-            prev_pressed_key = cur_pressed_key;
-            break;
+        lcd_write_char(START_STOP_SIGNAL);
     }
     return next_state;
 }
 
-void schedule(unsigned long int const SYSTEM_PERIOD)
+int
+up_button_handler(int const current_state)
+{
+    return 0;
+}
+
+int 
+down_button_handler(int const current_state)
+{
+    return 0;
+}
+
+void 
+schedule(unsigned long int const SYSTEM_PERIOD)
 // iterates through all tasks executing the i-th task 
 // if its elapsed time is greater than or equal too its
 // period. 
@@ -167,19 +111,22 @@ void schedule(unsigned long int const SYSTEM_PERIOD)
     }
 }
 
-void initialize_ports()
+void 
+initialize_ports()
 // initializes the system ports
 {
+    initialize_port('A', DDR_INPUT, INIT_VAL_INPUT);
     initialize_port('B', DDR_OUTPUT, INIT_VAL_OUTPUT);
     initialize_port('C', DDR_KEYPAD, INIT_VAL_KEYPAD);
     initialize_port('D', DDR_OUTPUT, INIT_VAL_OUTPUT);
 }
 
-void initialize_task(unsigned char const task_id,
-                     signed char const start_state,
-                     unsigned long int period,
-                     unsigned long int elapsed_time,
-                     int (*start)(int))
+void 
+initialize_task(unsigned char const task_id,
+                signed char const start_state,
+                unsigned long int period,
+                unsigned long int elapsed_time,
+                int (*start)(int))
 {
     task * t = &tasks[task_id];
     t->state = start_state;;
@@ -205,13 +152,23 @@ get_system_period()
 
 void
 initialize_tasks()
-// initializes the system tasks
+// initializes system tasks
 {
-    initialize_task(TASK_KEYPAD_ID, 
-                    KEYPAD_INIT,
-                    TASK_KEYPAD_PERIOD,
-                    TASK_KEYPAD_PERIOD,
-                    keypad_handler);    // initialize the keypad task 
+    initialize_task(TASK_START_STOP_BUTTON_ID,
+                    BUTTON_INIT,
+                    TASK_START_STOP_BUTTON_PERIOD,
+                    TASK_START_STOP_BUTTON_PERIOD,
+                    start_stop_button_handler);   // initialize the start stop button task
+    initialize_task(TASK_UP_BUTTON_ID,
+                    BUTTON_INIT,
+                    TASK_UP_BUTTON_PERIOD,
+                    TASK_UP_BUTTON_PERIOD,
+                    up_button_handler);
+    initialize_task(TASK_DOWN_BUTTON_ID,
+                    BUTTON_INIT,
+                    TASK_DOWN_BUTTON_PERIOD,
+                    TASK_DOWN_BUTTON_PERIOD,
+                    down_button_handler);
 }
 
 int 
