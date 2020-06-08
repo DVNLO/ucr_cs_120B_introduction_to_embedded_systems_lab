@@ -245,45 +245,6 @@ void initialize_task(unsigned char const task_id,
     t->start = start;
 }
 
-void
-swap(unsigned long int * const lhs, 
-     unsigned long int * const rhs)
-// swaps the values found at lhs and rhs
-// assuming lhs and rhs are not nullptr.
-{
-    unsigned long int t = *lhs;
-    *lhs = *rhs;
-    *rhs = t;
-}
-
-unsigned long int
-greatest_common_divisor(unsigned long int const a,
-                        unsigned long int const b)
-// returns the greatest common divisor between two
-// numbers a and b. 
-{
-    unsigned long int x;
-    unsigned long int y;
-    unsigned long int z;
-    if(a >= b)
-    {
-        x = a;
-        y = b;
-    }
-    else
-    {
-        x = b;
-        y = a;
-    }
-    while(y)
-    {
-        z = y;
-        y = x % y;
-        x = z;
-    }
-    return x;
-}
-
 unsigned long int
 get_system_period()
 // returns the system period. The system period is the 
